@@ -41,19 +41,36 @@ parseInstructions filePath = do
 maxDialValue :: Integer
 maxDialValue = 99
 
-traverseInstructions :: Integer -> Integer -> [RotationInstruction] -> Integer
-traverseInstructions zeros _ [] = zeros
-traverseInstructions zeros start (RotationInstruction dir amount : remaining) =
-  traverseInstructions nextZeros nextValue remaining
+traverseInstructions zeroOccurrences _ [] = zeroOccurrences
+traverseInstructions zeroOccurrences currentValue ((RotationInstruction dir amount) : remaining) =
+  traverseInstructions getZeroOccurrences nextValue remaining
   where
     rotationValue :: Integer
     rotationValue = if dir == LeftDir then -amount else amount
 
-    nextValue :: Integer
-    nextValue = (start + rotationValue) `mod` (maxDialValue + 1)
+    totalDialValues :: Integer
+    totalDialValues = maxDialValue + 1
 
-    nextZeros :: Integer
-    nextZeros = zeros + if nextValue == 0 then 1 else 0
+    nextValue :: Integer
+    nextValue = (currentValue + rotationValue) `mod` totalDialValues
+
+    pointsAtZero :: Bool
+    pointsAtZero = nextValue == 0
+
+    -- 47 + 100 = 150 / 100 = 0
+    -- 47 - 600 = 87
+    getTotalOverflows :: Integer
+    getTotalOverflows = remainderOverflow + rotationOverflows
+      where
+        rotationOverflows = abs rotationValue `div` maxDialValue
+        remainder = (rotationValue `mod` totalDialValues) * (if dir == LeftDir then -1 else 1)
+        remainderOverflow = if currentValue + remainder > maxDialValue || currentValue + remainder < 0 then 1 else 0
+
+    getZeroOccurrences :: Integer
+    getZeroOccurrences =
+      zeroOccurrences
+        -- + (if pointsAtZero then 1 else 0)
+        + getTotalOverflows
 
 main :: IO ()
 main = do
