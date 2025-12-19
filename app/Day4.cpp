@@ -66,10 +66,11 @@ uint64_t getTotalForkliftableRolls(const std::vector<std::vector<char>> &grid, s
                 neighbors.end(),
                 [](const char &neighbor)
                 { return neighbor == '@'; });
-            std::cout << "total of " << neighbors.size() << " neighbors" << std::endl;
+            // std::cout << "total of " << neighbors.size() << " neighbors" << std::endl;
 
-            if (neighborRolls <= maxNeighborRolls) {
+            if (neighborRolls <= maxNeighborRolls && grid[i][j] == '@') {
                 count += 1;
+                std::cout << "[" << i << "," << j << "]" << std::endl;
             }
         }
     }
