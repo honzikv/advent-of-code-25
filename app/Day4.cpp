@@ -5,9 +5,12 @@
 #include <fstream>
 #include <algorithm>
 
-std::vector<char> getNeighbors(const std::vector<std::vector<char>> &grid, size_t i, size_t j);
-uint64_t getTotalForkliftableRolls(const std::vector<std::vector<char>> &grid, size_t maxNeighborRolls = 3);
+using Grid = std::vector<std::vector<char>>;
+using ForkliftableIndices = std::vector<std::pair<uint32_t, uint32_t>>;
 
+std::vector<char> getNeighbors(const Grid &grid, uint32_t i, uint32_t j);
+std::vector<std::pair<uint32_t, uint32_t>> getForkliftableRollIndices(const Grid &grid, uint32_t maxNeighborRolls = 3);
+Grid forkliftIndices(const Grid &grid, const ForkliftableIndices &forkliftableIndices);
 
 int main(int argc, char *argv[])
 {
@@ -37,7 +40,7 @@ int main(int argc, char *argv[])
     }
 
     // Create the "matrix"
-    std::vector<std::vector<char>> grid;
+    Grid grid;
     std::transform(
         lines.begin(),
         lines.end(),
@@ -47,38 +50,58 @@ int main(int argc, char *argv[])
             return std::vector<char>(line.begin(), line.end());
         });
 
-    std::cout << "total of " << lines.size() << " lines" << std::endl;
-    const auto total = getTotalForkliftableRolls(grid);
-    std::cout << total << std::endl;
+    auto rollsRemoved = 0;
+    while (true)
+    {
+        const auto forklifableIndices = getForkliftableRollIndices(grid);
+        if (forklifableIndices.empty())
+        {
+            break;
+        }
+
+        rollsRemoved += forklifableIndices.size();
+        grid = forkliftIndices(grid, forklifableIndices);
+    }
+
+    std::cout << rollsRemoved << std::endl;
 }
 
-uint64_t getTotalForkliftableRolls(const std::vector<std::vector<char>> &grid, size_t maxNeighborRolls)
+ForkliftableIndices getForkliftableRollIndices(const Grid &grid, uint32_t maxNeighborRolls)
 {
-    size_t count = 0;
-    std::cout << "grid size X=" << grid.size() << "Y=" << grid[0].size() << std::endl;
-    for (auto i = 0; i < grid.size(); i += 1)
+    ForkliftableIndices result;
+    for (auto i = 0u; i < grid.size(); i += 1)
     {
-        for (auto j = 0; j < grid[i].size(); j += 1)
+        for (auto j = 0u; j < grid[i].size(); j += 1)
         {
             const std::vector<char> neighbors = getNeighbors(grid, i, j);
-            const size_t neighborRolls = std::count_if(
+            const auto neighborRolls = std::count_if(
                 neighbors.begin(),
                 neighbors.end(),
                 [](const char &neighbor)
                 { return neighbor == '@'; });
-            // std::cout << "total of " << neighbors.size() << " neighbors" << std::endl;
 
-            if (neighborRolls <= maxNeighborRolls && grid[i][j] == '@') {
-                count += 1;
-                std::cout << "[" << i << "," << j << "]" << std::endl;
+            if (neighborRolls <= maxNeighborRolls && grid[i][j] == '@')
+            {
+                result.push_back({i, j});
             }
         }
     }
 
-    return count;
+    return result;
 }
 
-std::vector<char> getNeighbors(const std::vector<std::vector<char>> &grid, size_t i, size_t j)
+Grid forkliftIndices(const Grid &grid, const ForkliftableIndices &forkliftableIndices)
+{
+    auto result = Grid(grid);
+    for (const auto [i, j] : forkliftableIndices)
+    {
+        result[i][j] = '.';
+    }
+
+    return result;
+}
+
+std::vector<char> getNeighbors(const Grid &grid, uint32_t i, uint32_t j)
 {
     std::vector<char> result;
     const auto dim = grid[0].size();
