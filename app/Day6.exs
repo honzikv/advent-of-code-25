@@ -12,15 +12,12 @@ defmodule Day6 do
     case File.read(file_path) do
       {:ok, content} ->
         lines = content |> String.split("\n")
-        extract_celaphopod_exprs(lines) |> compute_cephalopod_exprs() |> IO.puts()
+        extract_cephalopod_exprs(lines) |> compute_cephalopod_exprs() |> IO.puts()
         extract_transposed_cephalopod_exprs(lines) |> compute_cephalopod_exprs() |> IO.puts()
     end
   end
 
-  defp part2(lines) do
-  end
-
-  defp extract_celaphopod_exprs(lines, expression_rows \\ []) do
+  defp extract_cephalopod_exprs(lines, expression_rows \\ []) do
     case lines do
       [] ->
         expression_rows
@@ -37,7 +34,7 @@ defmodule Day6 do
           |> String.split(" ", trim: true)
           |> Enum.map(fn x -> String.to_integer(x) end)
 
-        extract_celaphopod_exprs(remaining_lines, [expression_row | expression_rows])
+        extract_cephalopod_exprs(remaining_lines, [expression_row | expression_rows])
     end
   end
 
