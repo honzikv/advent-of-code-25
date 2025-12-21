@@ -12,7 +12,7 @@ defmodule Day6 do
     case File.read(file_path) do
       {:ok, content} ->
         lines = content |> String.split("\n")
-        # extract_celaphopod_exprs(lines) |> compute_cephalopod_exprs(ops) |> IO.puts()
+        extract_celaphopod_exprs(lines) |> compute_cephalopod_exprs() |> IO.puts()
         extract_transposed_cephalopod_exprs(lines) |> compute_cephalopod_exprs() |> IO.puts()
     end
   end
