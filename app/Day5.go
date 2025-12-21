@@ -54,6 +54,7 @@ func main() {
 	fmt.Println("Ingredients: ", len(ingredients))
 	fmt.Println("Solution:\n-----------------------------")
 	fmt.Println(getValidIngredientCount(ranges, ingredients))
+	fmt.Println(countFreshIdsFromRanges(ranges))
 }
 
 type Range struct {
@@ -159,4 +160,14 @@ func isIngredientInRange(sortedRanges []Range, ingredient int) bool {
 	})
 
 	return found
+}
+
+func countFreshIdsFromRanges(sortedRanges []Range) int {
+	total := 0
+
+	for _, r := range sortedRanges {
+		total += r.end - r.start + 1
+	}
+
+	return total
 }
